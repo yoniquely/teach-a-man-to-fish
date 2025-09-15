@@ -27,6 +27,8 @@ var villagerInc2 = 0
 var villagerFishMult = 0
 var villagerFishMultUpgradeReq = 4
 
+var LineEditAllowed = true ## Once timers end allows players to edit the textbox again
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	$LineEdit.grab_focus()
@@ -36,19 +38,23 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	$ProgressBar.value = 60 - $dayTimer.time_left
 	if Input.is_action_just_pressed("ui_accept"):
-		if $LineEdit.text.to_lower() == "go fishin":
-			$LineEdit.editable = false
+		if $LineEdit.text.to_lower() == "go fishin" and LineEditAllowed == true:
+			##$LineEdit.visab
+			#$LineEdit.editable = false ## This may be causing issues with focus and edit mode
+			$LineEdit.set_placeholder('')
 			$LineEdit.clear()
+			$LineEdit.visible = false
 			$response.visible = true
 			$response.text = "fishin..."
 			$loadTimer.start()
 			$fishTimer.start(fishTime*gamespeed)
-		elif $LineEdit.text.to_lower() == "teach a man to fish":
+		elif $LineEdit.text.to_lower() == "teach a man to fish" and LineEditAllowed == true:
 			if fishermanTotal < villagers:
-				$LineEdit.editable = false
+				##$LineEdit.editable = false
 				$LineEdit.clear()
+				$LineEdit.visible = false
 				$response.visible = true
-				$response.text = "teaching..."
+				$response.text = "teachin..."
 				$loadTimer.start()
 				$teachTimer.start(teachTime*gamespeed)
 			else:
@@ -89,7 +95,17 @@ func catchFish():
 		return 1
 	else:
 		return 0
-		
+
+
+func ResetLineEdit():
+	## $LineEdit.editable = true
+	$LineEdit.clear()
+	LineEditAllowed = true
+	$LineEdit.visible = true
+	await get_tree().process_frame
+	$LineEdit.grab_focus() ## Shouldn't be needed
+
+
 func dayReset():
 	$dayTimer.stop()
 	$loadTimer.stop()
@@ -97,8 +113,9 @@ func dayReset():
 	$teachTimer.stop()
 	$villagerFishTimer.stop()
 	$response.visible = false
-	$LineEdit.editable = true
-	
+	$LineEdit.set_placeholder('go fishin')
+	ResetLineEdit()
+
 
 func _on_timer_timeout() -> void:
 	$loadTimer.stop()
@@ -109,7 +126,16 @@ func _on_timer_timeout() -> void:
 		$response.text = "the fish have eluded you"
 	fishTotal += fishCaught
 	fishOverallTotal += fishCaught
-	$LineEdit.editable = true
+	ResetLineEdit()
+
+
+func _on_teach_timer_timeout() -> void:
+	$loadTimer.stop()
+	fishermanTotal += 1
+	villagers += 1
+	$response.text = "you taught a man to fish"
+	ResetLineEdit()
+
 
 func _on_load_timer_timeout() -> void:
 	$response.text += "."
@@ -138,14 +164,6 @@ func _on_button_pressed() -> void:
 		$dayTimer.start(dayTime * gamespeed)
 	else:
 		$gameover.visible = true
-
-
-func _on_teach_timer_timeout() -> void:
-	$loadTimer.stop()
-	fishermanTotal += 1
-	villagers += 1
-	$response.text = "you taught a man to fish"
-	$LineEdit.editable = true
 
 
 func _on_villager_fish_timer_timeout() -> void:
