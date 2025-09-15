@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://pagvwytvnpd5"]
 
 [ext_resource type="FontFile" uid="uid://b8adavbtd6uxu" path="res://fonts/m5x7.ttf" id="1_fne7m"]
-[ext_resource type="Script" path="res://main.gd" id="1_sdj6f"]
+[ext_resource type="Script" uid="uid://6tro1ypy7ci4" path="res://main.gd" id="1_sdj6f"]
 [ext_resource type="AudioStream" uid="uid://cn1fx71ely5rs" path="res://Beats to fish 2.wav" id="3_e0foe"]
 
 [node name="main" type="Node2D"]
