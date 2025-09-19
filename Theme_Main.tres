@@ -1,0 +1,10 @@
+[gd_resource type="Theme" load_steps=3 format=3 uid="uid://dpkmsuihr8qe8"]
+
+[ext_resource type="FontFile" uid="uid://b8adavbtd6uxu" path="res://fonts/m5x7.ttf" id="1_2kuih"]
+
+[sub_resource type="GDScript" id="GDScript_1bvp3"]
+
+[resource]
+default_font = ExtResource("1_2kuih")
+default_font_size = 32
+script = SubResource("GDScript_1bvp3")

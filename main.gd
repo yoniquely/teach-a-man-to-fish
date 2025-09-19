@@ -28,45 +28,91 @@ var villagerFishMult = 0
 var villagerFishMultUpgradeReq = 4
 
 var LineEditAllowed = true ## Once timers end allows players to edit the textbox again
+@export var LineEditVarPath : NodePath
+var LineEditVar
+@export var ResponseVarPath : NodePath
+var ResponseVar
+@export var FishTotalVarPath : NodePath
+var FishTotalVar
+@export var VillagersTotalVarPath : NodePath
+var VillagersTotalVar
+@export var DayVarPath : NodePath
+var DayVar
+@export var FishermanTotalVarPath : NodePath
+var FishermanTotalVar
+@export var LevelUpTextPath : NodePath
+var LevelUpTextVar
+@export var DayScriptPath : NodePath
+var DayScriptVar
+@export var FishermanCatchPath : NodePath
+var FishermanCatchVar
+@export var ProgressBarPath : NodePath
+var ProgressBarVar
+@export var GameOverPath : NodePath
+var GameOverVar
+@export var DaySummaryPath : NodePath
+var DaySummaryVar
+@export var SummaryFishCaughtTotal_Path : NodePath
+var SummaryFishCaughtTotal
+@export var SummaryVillagersTotal_Path : NodePath
+var SummaryVillagersTotal
+@export var SummaryFishermanTotal_Path : NodePath
+var SummaryFishermanTotal
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	$LineEdit.grab_focus()
+	LineEditVar = get_node(LineEditVarPath)
+	LineEditVar.grab_focus()
+	ResponseVar = get_node(ResponseVarPath)
+	FishTotalVar = get_node(FishTotalVarPath)
+	VillagersTotalVar = get_node(VillagersTotalVarPath)
+	DayVar = get_node(DayVarPath)
+	FishermanTotalVar = get_node(FishermanTotalVarPath)
+	LevelUpTextVar = get_node(LevelUpTextPath)
+	DayScriptVar = get_node(DayScriptPath)
+	FishermanCatchVar = get_node(FishermanCatchPath)
+	ProgressBarVar = get_node(ProgressBarPath)
+	GameOverVar = get_node(GameOverPath)
+	DaySummaryVar = get_node(DaySummaryPath)
+	SummaryFishCaughtTotal = get_node(SummaryFishCaughtTotal_Path)
+	SummaryVillagersTotal = get_node(SummaryVillagersTotal_Path)
+	SummaryFishermanTotal = get_node(SummaryFishermanTotal_Path)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	$ProgressBar.value = 60 - $dayTimer.time_left
+	ProgressBarVar.value = 60 - $dayTimer.time_left
 	if Input.is_action_just_pressed("ui_accept"):
-		if $LineEdit.text.to_lower() == "go fishin" and LineEditAllowed == true:
-			##$LineEdit.visab
-			#$LineEdit.editable = false ## This may be causing issues with focus and edit mode
-			$LineEdit.set_placeholder('')
-			$LineEdit.clear()
-			$LineEdit.visible = false
-			$response.visible = true
-			$response.text = "fishin..."
+		if LineEditVar.text.to_lower() == "go fishin" and LineEditAllowed == true:
+			##LineEditVar.visab
+			#LineEditVar.editable = false ## This may be causing issues with focus and edit mode
+			LineEditVar.set_placeholder('')
+			LineEditVar.clear()
+			LineEditVar.visible = false
+			ResponseVar.visible = true
+			ResponseVar.text = "fishin..."
 			$loadTimer.start()
 			$fishTimer.start(fishTime*gamespeed)
-		elif $LineEdit.text.to_lower() == "teach a man to fish" and LineEditAllowed == true:
+		elif LineEditVar.text.to_lower() == "teach a man to fish" and LineEditAllowed == true:
 			if fishermanTotal < villagers:
-				##$LineEdit.editable = false
-				$LineEdit.clear()
-				$LineEdit.visible = false
-				$response.visible = true
-				$response.text = "teachin..."
+				##LineEditVar.editable = false
+				LineEditVar.clear()
+				LineEditVar.visible = false
+				ResponseVar.visible = true
+				ResponseVar.text = "teachin..."
 				$loadTimer.start()
 				$teachTimer.start(teachTime*gamespeed)
 			else:
-				$LineEdit.clear()
-				$response.visible = true
-				$response.text = "there are no men left to teach"
+				LineEditVar.clear()
+				ResponseVar.visible = true
+				ResponseVar.text = "there are no men left to teach"
 	
-	$fishTotal.text = "fish caught today: %s" % fishTotal
-	$villagersTotal.text = "villagers: %s" % villagers
-	$day.text =  "day %s" % day
-	$fishermenTotal.text =  "fishermen: %s" % fishermanTotal
-	$dayScript.text = "its day %s
+	FishTotalVar.text = "fish caught today: %s" % fishTotal
+	VillagersTotalVar.text = "villagers: %s" % villagers
+	DayVar.text =  "day %s" % day
+	FishermanTotalVar.text =  "fishermen: %s" % fishermanTotal
+	DayScriptVar.text = "its day %s
 	Time to go fishin
 	you have %s hungry mouths to feed
 	lucky you've got %s villagers who can help" % [day,villagers,fishermanTotal]
@@ -78,15 +124,15 @@ func levelCheck():
 		fishMult += 1
 		fishMultUpgradeReq += 2
 		fishOverallTotal = 0
-		$levelupText.text = "fish mastery up!"
-		$levelupText/displayTimer2.start()
+		LevelUpTextVar.text = "fish mastery up!"
+		LevelUpTextVar.get_node("displayTimer2").start()
 		
 	if villagerFishOverallTotal > villagerFishMultUpgradeReq:
 		villagerFishMult += 1
 		villagerFishMultUpgradeReq += 2
 		villagerFishOverallTotal = 0
-		$levelupText.text = "fisherman's fish mastery up!"
-		$levelupText/displayTimer2.start()
+		LevelUpTextVar.text = "fisherman's fish mastery up!"
+		LevelUpTextVar.get_node("displayTimer2").start()
 
 func catchFish():
 	var fishChance : float = (fishMult*3 + 80)/100.0
@@ -98,12 +144,12 @@ func catchFish():
 
 
 func ResetLineEdit():
-	## $LineEdit.editable = true
-	$LineEdit.clear()
+	## LineEditVar.editable = true
+	LineEditVar.clear()
 	LineEditAllowed = true
-	$LineEdit.visible = true
+	LineEditVar.visible = true
 	await get_tree().process_frame
-	$LineEdit.grab_focus() ## Shouldn't be needed
+	LineEditVar.grab_focus() ## Shouldn't be needed
 
 
 func dayReset():
@@ -112,8 +158,8 @@ func dayReset():
 	$fishTimer.stop()
 	$teachTimer.stop()
 	$villagerFishTimer.stop()
-	$response.visible = false
-	$LineEdit.set_placeholder('go fishin')
+	ResponseVar.visible = false
+	LineEditVar.set_placeholder('go fishin')
 	ResetLineEdit()
 
 
@@ -121,9 +167,9 @@ func _on_timer_timeout() -> void:
 	$loadTimer.stop()
 	fishCaught = catchFish()
 	if fishCaught == 1:
-		$response.text = "you caught a fish!"
+		ResponseVar.text = "you caught a fish!"
 	else:
-		$response.text = "the fish have eluded you"
+		ResponseVar.text = "the fish have eluded you"
 	fishTotal += fishCaught
 	fishOverallTotal += fishCaught
 	ResetLineEdit()
@@ -133,22 +179,21 @@ func _on_teach_timer_timeout() -> void:
 	$loadTimer.stop()
 	fishermanTotal += 1
 	villagers += 1
-	$response.text = "you taught a man to fish"
+	ResponseVar.text = "you taught a man to fish"
 	ResetLineEdit()
 
 
 func _on_load_timer_timeout() -> void:
-	$response.text += "."
+	ResponseVar.text += "."
 
 
 func _on_day_timer_timeout() -> void:
 	dayReset()
-	$daySummary/daySummaryTitle.text = "DAY %s COMPLETE" % day
-	$daySummary/fishCaught_total.text = str(fishTotal)
-	$daySummary/villagers_total.text = str(villagers)
-	$daySummary/fishermen_total.text = str(fishermanTotal)
+	SummaryFishCaughtTotal.text = str(fishTotal)
+	SummaryVillagersTotal.text = str(villagers)
+	SummaryFishermanTotal.text = str(fishermanTotal)
 	get_tree().paused = true
-	$daySummary.visible = true
+	DaySummaryVar.visible = true
 
 
 func _on_button_pressed() -> void:
@@ -158,12 +203,13 @@ func _on_button_pressed() -> void:
 		villagers = villagers + villagerInc1 + villagerInc2
 		villagerInc1 = villagerInc2
 		villagerInc2 += 1
-		$daySummary.visible = false
+		DaySummaryVar.visible = false
 		fishTotal = 0
 		$villagerFishTimer.start(fishTime*gamespeed)
 		$dayTimer.start(dayTime * gamespeed)
 	else:
-		$gameover.visible = true
+		GameOverVar.visible = true
+		## TODO create a reset button and set it to be visable here
 
 
 func _on_villager_fish_timer_timeout() -> void:
@@ -173,13 +219,13 @@ func _on_villager_fish_timer_timeout() -> void:
 			#print(fishChance)
 			if randf_range(0,1) < fishChance:
 				fishTotal += 1
-				$fishermanCatch.visible = true
-				$fishermanCatch/displayTimer.start()
+				FishermanCatchVar.visible = true
+				FishermanCatchVar.get_node("displayTimer").start()
 
 
 func _on_display_timer_timeout() -> void:
-	$fishermanCatch.visible = false
+	FishermanCatchVar.visible = false
 
 
 func _on_display_timer_2_timeout() -> void:
-	$levelupText.visible = false
+	LevelUpTextVar.visible = false
