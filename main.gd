@@ -1,6 +1,6 @@
 extends Node2D
 
-var gamespeed = .5
+var gamespeed = .2 ##changed for debugging
 var fishTime = 10
 var teachTime = 20
 var dayTime = 60
@@ -13,7 +13,7 @@ var fishermanTotal = 0
 var villagers = 3
 var fishCaught = 0
 
-var timeLeftInDay = 120 #2 minutes
+var timeLeftInDay = 60 #1 minutes
 
 var fishMult = 0
 var teachingMult = 0
@@ -59,9 +59,10 @@ var SummaryVillagersTotal
 @export var SummaryFishermanTotal_Path : NodePath
 var SummaryFishermanTotal
 
-
+var gameover = false
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 	LineEditVar = get_node(LineEditVarPath)
 	LineEditVar.grab_focus()
 	ResponseVar = get_node(ResponseVarPath)
@@ -78,12 +79,14 @@ func _ready() -> void:
 	SummaryFishCaughtTotal = get_node(SummaryFishCaughtTotal_Path)
 	SummaryVillagersTotal = get_node(SummaryVillagersTotal_Path)
 	SummaryFishermanTotal = get_node(SummaryFishermanTotal_Path)
-
+	
+	$dayTimer.start(dayTime * gamespeed)
+	ProgressBarVar.max_value = dayTime * gamespeed
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	ProgressBarVar.value = 60 - $dayTimer.time_left
-	if Input.is_action_just_pressed("ui_accept"):
+	ProgressBarVar.value = (dayTime * gamespeed) - $dayTimer.time_left
+	if Input.is_action_just_pressed("ui_accept") and !gameover:
 		if LineEditVar.text.to_lower() == "go fishin" and LineEditAllowed == true:
 			##LineEditVar.visab
 			#LineEditVar.editable = false ## This may be causing issues with focus and edit mode
@@ -107,6 +110,16 @@ func _process(delta: float) -> void:
 				LineEditVar.clear()
 				ResponseVar.visible = true
 				ResponseVar.text = "there are no men left to teach"
+	
+	elif Input.is_action_just_pressed("ui_accept") and gameover and GameOverVar.visible:
+		gameover = false
+		#get_tree().reload_current_scene()
+		
+	if Input.is_action_just_pressed("reset"):
+		get_tree().reload_current_scene()
+		
+	if Input.is_action_just_pressed("ui_cancel"):
+		get_tree().quit()
 	
 	FishTotalVar.text = "fish caught today: %s" % fishTotal
 	VillagersTotalVar.text = "villagers: %s" % villagers
@@ -208,7 +221,10 @@ func _on_button_pressed() -> void:
 		$villagerFishTimer.start(fishTime*gamespeed)
 		$dayTimer.start(dayTime * gamespeed)
 	else:
-		GameOverVar.visible = true
+		if !gameover:
+			GameOverVar.visible = true
+			$"../Game Over Screen/gameover/Game over box/Button_reset".grab_focus()
+			gameover = true
 		## TODO create a reset button and set it to be visable here
 
 
@@ -229,3 +245,8 @@ func _on_display_timer_timeout() -> void:
 
 func _on_display_timer_2_timeout() -> void:
 	LevelUpTextVar.visible = false
+
+
+func _on_button_reset_pressed() -> void:
+	#pass
+	get_tree().reload_current_scene()
